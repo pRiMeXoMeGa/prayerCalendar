@@ -279,7 +279,7 @@
         <p class="click-note">Click on a day to track prayers</p>
     </div>
 
-    <script>
+    <!-- <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Global state
             const state = {
@@ -656,6 +656,12 @@
             // Initialize the app
             init();
         });
-    </script>
+    </script> -->
+    <script type="module">
+        import { initPrayerTrackerWithGitHub } from './prayer-tracker-data.js';
+        
+        // Initialize with GitHub integration
+        initPrayerTrackerWithGitHub();
+      </script>
 </body>
 </html>
