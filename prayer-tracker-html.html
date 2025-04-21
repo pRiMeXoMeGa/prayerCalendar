@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Islamic Prayer Tracker</title>
+    <style>
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+        
+        .title svg {
+            margin-right: 8px;
+        }
+        
+        .month-nav {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            border-radius: 50%;
+            padding: 8px;
+        }
+        
+        .btn:hover {
+            background-color: #f0f0f0;
+        }
+        
+        select {
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        
+        /* Progress Bars */
+        .progress-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .progress-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .progress-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .progress-bar {
+            position: relative;
+            height: 16px;
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 9999px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background-color: #4ade80;
+            border-radius: 9999px;
+        }
+        
+        .progress-text {
+            font-size: 14px;
+            color: #666;
+            margin-top: 4px;
+        }
+        
+        /* Calendar */
+        .calendar-header {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+            margin-bottom: 8px;
+        }
+        
+        .day-name {
+            text-align: center;
+            font-weight: 600;
+            padding: 8px 0;
+        }
+        
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+            margin-bottom: 24px;
+        }
+        
+        .calendar-day {
+            position: relative;
+            min-height: 60px;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 8px;
+        }
+        
+        .selected-day {
+            border: 2px solid #3b82f6;
+        }
+        
+        .day-number {
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        
+        .bg-red-100 {
+            background-color: #fee2e2;
+        }
+        
+        .bg-orange-100 {
+            background-color: #ffedd5;
+        }
+        
+        .bg-green-100 {
+            background-color: #dcfce7;
+        }
+        
+        /* Prayer Detail Section */
+        .prayer-detail {
+            margin-top: 24px;
+            border-top: 1px solid #e0e0e0;
+            padding-top: 16px;
+        }
+        
+        .prayer-detail-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        
+        .prayer-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+        }
+        
+        @media (min-width: 768px) {
+            .prayer-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
+        .prayer-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .prayer-person {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 12px;
+        }
+        
+        .prayer-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .prayer-checkbox {
+            margin-right: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+        
+        .prayer-name {
+            font-size: 16px;
+        }
+        
+        .click-note {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="prayer-tracker">
+        <div class="header">
+            <h1 class="title">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                Prayer Tracker
+            </h1>
+            <div class="month-nav">
+                <button class="btn" id="prev-month">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                </button>
+                <div>
+                    <select id="month-select"></select>
+                    <select id="year-select"></select>
+                </div>
+                <button class="btn" id="next-month">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        
+        <div class="progress-container" id="progress-container">
+            <!-- Progress bars will be added here -->
+        </div>
+        
+        <div class="calendar-header" id="calendar-header">
+            <!-- Day names will be added here -->
+        </div>
+        
+        <div class="calendar-grid" id="calendar-grid">
+            <!-- Calendar days will be added here -->
+        </div>
+        
+        <div class="prayer-detail" id="prayer-detail">
+            <!-- Prayer detail will be added here -->
+        </div>
+        
+        <p class="click-note">Click on a day to track prayers</p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Global state
+            const state = {
+                currentYear: new Date().getFullYear(),
+                currentMonth: new Date().getMonth(),
+                selectedDate: new Date(),
+                prayerData: {},
+                prayers: ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'],
+                people: ['Wife', 'Husband'],
+                months: ['January', 'February', 'March', 'April', 'May', 'June', 
+                         'July', 'August', 'September', 'October', 'November', 'December'],
+                dayNames: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+            };
+            
+            // Initialize
+            function init() {
+                // Load data from localStorage
+                const savedData = localStorage.getItem('prayerTracker');
+                if (savedData) {
+                    state.prayerData = JSON.parse(savedData);
+                }
+                
+                // Setup month and year dropdowns
+                setupMonthYearSelects();
+                
+                // Setup calendar header
+                setupCalendarHeader();
+                
+                // Render calendar, progress bars, and prayer detail
+                renderCalendar();
+                renderProgressBars();
+                renderPrayerDetail();
+                
+                // Setup event listeners
+                document.getElementById('prev-month').addEventListener('click', prevMonth);
+                document.getElementById('next-month').addEventListener('click', nextMonth);
+                document.getElementById('month-select').addEventListener('change', handleMonthChange);
+                document.getElementById('year-select').addEventListener('change', handleYearChange);
+            }
+            
+            // Setup month and year dropdowns
+            function setupMonthYearSelects() {
+                const monthSelect = document.getElementById('month-select');
+                const yearSelect = document.getElementById('year-select');
+                
+                // Populate months
+                state.months.forEach((month, index) => {
+                    const option = document.createElement('option');
+                    option.value = index;
+                    option.textContent = month;
+                    monthSelect.appendChild(option);
+                });
+                monthSelect.value = state.currentMonth;
+                
+                // Populate years (current year +/- 5 years)
+                const currentYear = new Date().getFullYear();
+                for (let year = currentYear - 5; year <= currentYear + 5; year++) {
+                    const option = document.createElement('option');
+                    option.value = year;
+                    option.textContent = year;
+                    yearSelect.appendChild(option);
+                }
+                yearSelect.value = state.currentYear;
+            }
+            
+            // Setup calendar header with day names
+            function setupCalendarHeader() {
+                const calendarHeader = document.getElementById('calendar-header');
+                calendarHeader.innerHTML = '';
+                
+                state.dayNames.forEach(day => {
+                    const dayElement = document.createElement('div');
+                    dayElement.className = 'day-name';
+                    dayElement.textContent = day;
+                    calendarHeader.appendChild(dayElement);
+                });
+            }
+            
+            // Generate calendar days for current month
+            function generateCalendar() {
+                const firstDay = new Date(state.currentYear, state.currentMonth, 1);
+                const lastDay = new Date(state.currentYear, state.currentMonth + 1, 0);
+                const startOffset = firstDay.getDay();
+                const daysInMonth = lastDay.getDate();
+                
+                const calendar = [];
+                let week = Array(7).fill(null);
+                
+                // Fill in the offset days
+                for (let i = 0; i < startOffset; i++) {
+                    week[i] = null;
+                }
+                
+                // Fill in the days of the month
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const dayIndex = (startOffset + day - 1) % 7;
+                    week[dayIndex] = day;
+                    
+                    if (dayIndex === 6 || day === daysInMonth) {
+                        calendar.push([...week]);
+                        week = Array(7).fill(null);
+                    }
+                }
+                
+                return calendar;
+            }
+            
+            // Render calendar grid
+            function renderCalendar() {
+                const calendarGrid = document.getElementById('calendar-grid');
+                calendarGrid.innerHTML = '';
+                
+                const calendar = generateCalendar();
+                calendar.flat().forEach(day => {
+                    const dayElement = document.createElement('div');
+                    dayElement.className = 'calendar-day';
+                    
+                    // Add selected class if this is the selected day
+                    if (isSelectedDay(day)) {
+                        dayElement.classList.add('selected-day');
+                    }
+                    
+                    // Add background color based on prayer status
+                    const dayStatus = getCombinedDayStatus(day);
+                    if (dayStatus) {
+                        dayElement.classList.add(dayStatus);
+                    }
+                    
+                    if (day) {
+                        const dayNumber = document.createElement('div');
+                        dayNumber.className = 'day-number';
+                        dayNumber.textContent = day;
+                        dayElement.appendChild(dayNumber);
+                        
+                        // Add click event
+                        dayElement.addEventListener('click', () => selectDay(day));
+                    }
+                    
+                    calendarGrid.appendChild(dayElement);
+                });
+            }
+            
+            // Render progress bars
+            function renderProgressBars() {
+                const progressContainer = document.getElementById('progress-container');
+                progressContainer.innerHTML = '';
+                
+                state.people.forEach(person => {
+                    const progress = calculateMonthlyProgress(person);
+                    
+                    const progressCard = document.createElement('div');
+                    progressCard.className = 'progress-card';
+                    
+                    const title = document.createElement('h2');
+                    title.className = 'progress-title';
+                    title.textContent = `${person}'s Progress`;
+                    
+                    const progressBar = document.createElement('div');
+                    progressBar.className = 'progress-bar';
+                    
+                    const fill = document.createElement('div');
+                    fill.className = 'progress-fill';
+                    fill.style.width = `${progress}%`;
+                    
+                    const text = document.createElement('div');
+                    text.className = 'progress-text';
+                    text.textContent = `${progress}% of prayers completed this month`;
+                    
+                    progressBar.appendChild(fill);
+                    progressCard.appendChild(title);
+                    progressCard.appendChild(progressBar);
+                    progressCard.appendChild(text);
+                    
+                    progressContainer.appendChild(progressCard);
+                });
+            }
+            
+            // Render prayer detail for selected date
+            function renderPrayerDetail() {
+                const prayerDetail = document.getElementById('prayer-detail');
+                prayerDetail.innerHTML = '';
+                
+                const title = document.createElement('h2');
+                title.className = 'prayer-detail-title';
+                title.textContent = `Prayers for ${state.months[state.selectedDate.getMonth()]} ${state.selectedDate.getDate()}, ${state.selectedDate.getFullYear()}`;
+                
+                const prayerGrid = document.createElement('div');
+                prayerGrid.className = 'prayer-grid';
+                
+                state.people.forEach(person => {
+                    const card = document.createElement('div');
+                    card.className = 'prayer-card';
+                    
+                    const personTitle = document.createElement('h3');
+                    personTitle.className = 'prayer-person';
+                    personTitle.textContent = person;
+                    
+                    card.appendChild(personTitle);
+                    
+                    state.prayers.forEach((prayer, index) => {
+                        const prayerStatus = getPrayerStatus(state.selectedDate, person);
+                        
+                        const item = document.createElement('div');
+                        item.className = 'prayer-item';
+                        
+                        const checkbox = document.createElement('div');
+                        checkbox.className = 'prayer-checkbox';
+                        checkbox.innerHTML = prayerStatus[index] 
+                            ? '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><polyline points="9 11 12 14 22 4"></polyline></svg>'
+                            : '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>';
+                        
+                        checkbox.addEventListener('click', () => {
+                            togglePrayer(index, person);
+                        });
+                        
+                        const name = document.createElement('span');
+                        name.className = 'prayer-name';
+                        name.textContent = prayer;
+                        
+                        item.appendChild(checkbox);
+                        item.appendChild(name);
+                        
+                        card.appendChild(item);
+                    });
+                    
+                    prayerGrid.appendChild(card);
+                });
+                
+                prayerDetail.appendChild(title);
+                prayerDetail.appendChild(prayerGrid);
+            }
+            
+            // Get prayer key for storing in state
+            function getPrayerKey(date, person) {
+                return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}-${person}`;
+            }
+            
+            // Get prayer status for a specific day/person
+            function getPrayerStatus(date, person) {
+                const key = getPrayerKey(date, person);
+                return state.prayerData[key] || Array(5).fill(false);
+            }
+            
+            // Toggle prayer status
+            function togglePrayer(prayerIndex, person) {
+                const key = getPrayerKey(state.selectedDate, person);
+                const currentStatus = getPrayerStatus(state.selectedDate, person);
+                const newStatus = [...currentStatus];
+                newStatus[prayerIndex] = !newStatus[prayerIndex];
+                
+                state.prayerData[key] = newStatus;
+                
+                // Save to localStorage
+                localStorage.setItem('prayerTracker', JSON.stringify(state.prayerData));
+                
+                // Re-render views
+                renderCalendar();
+                renderProgressBars();
+                renderPrayerDetail();
+            }
+            
+            // Calculate monthly progress for a person
+            function calculateMonthlyProgress(person) {
+                const daysInMonth = new Date(state.currentYear, state.currentMonth + 1, 0).getDate();
+                let completedPrayers = 0;
+                let totalPrayers = daysInMonth * 5;
+                
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const date = new Date(state.currentYear, state.currentMonth, day);
+                    const status = getPrayerStatus(date, person);
+                    completedPrayers += status.filter(Boolean).length;
+                }
+                
+                return Math.floor((completedPrayers / totalPrayers) * 100);
+            }
+            
+            // Get day status for coloring (red/orange for missed prayers)
+            function getDayStatus(day, person) {
+                if (!day) return '';
+                
+                const date = new Date(state.currentYear, state.currentMonth, day);
+                const status = getPrayerStatus(date, person);
+                
+                if (status.every(val => val === false)) {
+                    return 'bg-red-100';
+                } else if (status.some(val => val === false)) {
+                    return 'bg-orange-100';
+                }
+                
+                return 'bg-green-100';
+            }
+            
+            // Combined status for both people
+            function getCombinedDayStatus(day) {
+                if (!day) return '';
+                
+                const meStatus = getDayStatus(day, 'Wife');
+                const husbandStatus = getDayStatus(day, 'Husband');
+                
+                if (meStatus === 'bg-red-100' && husbandStatus === 'bg-red-100') {
+                    return 'bg-red-100';
+                } else if (meStatus === 'bg-red-100' || husbandStatus === 'bg-red-100' || 
+                           meStatus === 'bg-orange-100' || husbandStatus === 'bg-orange-100') {
+                    return 'bg-orange-100';
+                }
+                
+                return 'bg-green-100';
+            }
+            
+            // Check if a day is selected
+            function isSelectedDay(day) {
+                if (!day) return false;
+                return state.selectedDate.getDate() === day && 
+                       state.selectedDate.getMonth() === state.currentMonth && 
+                       state.selectedDate.getFullYear() === state.currentYear;
+            }
+            
+            // Select a day
+            function selectDay(day) {
+                if (!day) return;
+                state.selectedDate = new Date(state.currentYear, state.currentMonth, day);
+                renderCalendar();
+                renderPrayerDetail();
+            }
+            
+            // Previous month
+            function prevMonth() {
+                if (state.currentMonth === 0) {
+                    state.currentYear--;
+                    state.currentMonth = 11;
+                } else {
+                    state.currentMonth--;
+                }
+                
+                updateCalendarView();
+            }
+            
+            // Next month
+            function nextMonth() {
+                if (state.currentMonth === 11) {
+                    state.currentYear++;
+                    state.currentMonth = 0;
+                } else {
+                    state.currentMonth++;
+                }
+                
+                updateCalendarView();
+            }
+            
+            // Handle month change
+            function handleMonthChange(e) {
+                state.currentMonth = parseInt(e.target.value);
+                updateCalendarView();
+            }
+            
+            // Handle year change
+            function handleYearChange(e) {
+                state.currentYear = parseInt(e.target.value);
+                updateCalendarView();
+            }
+            
+            // Update calendar view
+            function updateCalendarView() {
+                // Update select values
+                document.getElementById('month-select').value = state.currentMonth;
+                document.getElementById('year-select').value = state.currentYear;
+                
+                // Re-render components
+                renderCalendar();
+                renderProgressBars();
+                renderPrayerDetail();
+            }
+            
+            // Initialize the app
+            init();
+        });
+    </script>
+</body>
+</html>
