@@ -2,10 +2,10 @@
 
 // GitHub Configuration
 const githubConfig = {
-  repo: 'your-username/prayer-tracker', // Replace with your actual GitHub repository
+  repo: 'https://github.com/pRiMeXoMeGa/prayerCalendar', // Replace with your actual GitHub repository
   branch: 'main',
   filePath: 'prayer-data.json',
-  token: '' // Personal access token - do not hardcode in production; use environment variables
+  token: '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' // Personal access token - do not hardcode in production; use environment variables
 };
 
 // Function to fetch prayer data from GitHub
