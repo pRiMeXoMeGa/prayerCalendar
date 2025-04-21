@@ -1,0 +1,12 @@
+{
+  "2025-3-21-Wife": [true, true, true, true, true],
+  "2025-3-21-Husband": [true, true, true, true, true],
+  "2025-3-22-Wife": [true, true, false, true, true],
+  "2025-3-22-Husband": [true, true, true, true, false],
+  "2025-3-23-Wife": [true, false, true, true, true],
+  "2025-3-23-Husband": [true, true, true, false, true],
+  "2025-3-24-Wife": [true, true, true, true, true],
+  "2025-3-24-Husband": [true, true, true, true, true],
+  "2025-3-25-Wife": [false, true, true, true, true],
+  "2025-3-25-Husband": [true, true, false, true, true]
+}
